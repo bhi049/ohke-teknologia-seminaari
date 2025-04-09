@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Analysis Report</title>
+    </head>
+    <body>
+        <h1>Stock Data Analysis</h1>
+        <p><strong>Average Price:</strong> {{ mean | round(2) }} </p>
+        <p><strong>Maximum Price:</strong> {{ max | round(2) }} </p>
+        <p><strong>Minimum Price:</strong> {{ min | round(2) }} </p>
+
+        <h2>Price Trend</h2>
+        <img src="{{ url_for('static', filename='chart.png') }}" alt="Chart">
+    </body>
+</html>
