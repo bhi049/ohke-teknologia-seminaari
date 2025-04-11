@@ -2,27 +2,30 @@
 <html>
     <head>
         <title>Analysis Report</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     </head>
     <body>
-        <h1>Stock Data Analysis</h1>
-        <p><strong>Average Price:</strong> {{ mean | round(2) }} </p>
-        <p><strong>Maximum Price:</strong> {{ max | round(2) }} </p>
-        <p><strong>Minimum Price:</strong> {{ min | round(2) }} </p>
+        <div class="container">
+            <h1>Stock Data Analysis</h1>
+            <p><strong>Average Price:</strong> {{ mean | round(2) }} </p>
+            <p><strong>Maximum Price:</strong> {{ max | round(2) }} </p>
+            <p><strong>Minimum Price:</strong> {{ min | round(2) }} </p>
 
-        <h1>Moving Average Window</h1>
-        <form method="get" action="">
-            <label for="window">Select Moving Average Window (days):</label>
-            <select name="window" onchange="this.form.submit()">
-                <option value="5" {% if window == 5 %}selected{% endif %}>5</option>
-                <option value="10" {% if window == 10 %}selected{% endif %}>10</option>
-                <option value="20" {% if window == 20 %}selected{% endif %}>20</option>
-                <option value="30" {% if window == 30 %}selected{% endif %}>30</option>
-                <option value="60" {% if window == 60 %}selected{% endif %}>60</option>
-            </select>
-            <input type="hidden" name="filename" value="{{ filename }}">
-        </form>
+            <h1>Moving Average Window</h1>
+            <form method="get" action="">
+                <label for="window">Select Moving Average Window (days):</label>
+                <select name="window" onchange="this.form.submit()">
+                    <option value="5" {% if window == 5 %}selected{% endif %}>5</option>
+                    <option value="10" {% if window == 10 %}selected{% endif %}>10</option>
+                    <option value="20" {% if window == 20 %}selected{% endif %}>20</option>
+                    <option value="30" {% if window == 30 %}selected{% endif %}>30</option>
+                    <option value="60" {% if window == 60 %}selected{% endif %}>60</option>
+                </select>
+                <input type="hidden" name="filename" value="{{ filename }}">
+            </form>
 
-        <h2>Price Trend</h2>
-        <img src="{{ url_for('static', filename='chart.png') }}" alt="Chart">
+            <h2>Price Trend</h2>
+            <img src="{{ url_for('static', filename='chart.png') }}" alt="Chart">
+        </div>
     </body>
 </html>
