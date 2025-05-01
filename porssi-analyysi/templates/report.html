@@ -68,12 +68,12 @@
                     </div>
                 </form>
 
-                <!-- Explain Button -->
+                <!-- Explain Buttons -->
                 <form method="post" class="mb-4">
                     <input type="hidden" name="filename" value="{{ filename }}">
                     <input type="hidden" name="window" value="{{ window }}">
-                    <input type="hidden" name="explain" value="true">
-                    <button type="submit" class="btn btn-info">Explain this chart</button>
+                    <button type="submit" name="explain" value="short" class="btn btn-info me-2">Explain (short)</button>
+                    <button type="submit" name="explain" value="deep" class="btn btn-primary">Explain (detailed)</button>
                 </form>
 
                 <!-- Back Button -->
