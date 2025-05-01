@@ -57,8 +57,12 @@ def report():
 
     filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
 
-    # Read the CSV file and sort by date
-    df = pd.read_csv(filepath)
+    try:
+        # Read the CSV file and sort by date
+        df = pd.read_csv(filepath)
+    except Exception as e:
+        return f"Error reading CSV file: {str(e)}", 400
+
     df["Date"] = pd.to_datetime(df["Date"])
     df.sort_values("Date", inplace=True)
 
