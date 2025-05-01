@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib
 matplotlib.use('Agg')  # Use a non-GUI backend for matplotlib
 import matplotlib.pyplot as plt
+import seaborn as sns  # Add seaborn for chart styling
 from openai import OpenAI
 import os
 
@@ -63,32 +64,64 @@ def report():
     except Exception as e:
         return f"Error reading CSV file: {str(e)}", 400
 
-    df["Date"] = pd.to_datetime(df["Date"])
-    df.sort_values("Date", inplace=True)
+    try:
+        df["Date"] = pd.to_datetime(df["Date"])
+        df.sort_values("Date", inplace=True)
 
-    # Calculate statistics
-    mean_price = df["Close"].mean()
-    max_price = df["Close"].max()
-    min_price = df["Close"].min()
+        # Calculate statistics
+        mean_price = df["Close"].mean()
+        max_price = df["Close"].max()
+        min_price = df["Close"].min()
 
-    # Calculate trend direction
-    trend_desc = "upward" if df["Close"].iloc[-1] > df["Close"].iloc[0] else "downward"
+        # Calculate trend direction
+        trend_desc = "upward" if df["Close"].iloc[-1] > df["Close"].iloc[0] else "downward"
 
-    # Calculate moving average
-    df["MA"] = df["Close"].rolling(window=window).mean()
+        # Calculate moving average
+        df["MA"] = df["Close"].rolling(window=window).mean()
 
-    # Create chart
-    plt.figure(figsize=(10, 4))
-    plt.plot(df["Date"], df["Close"], label="Close Price")
-    plt.plot(df["Date"], df["MA"], label=f"{window}-Day MA", linestyle="--")
-    plt.title("Price Trend")
-    plt.xlabel("Date")
-    plt.ylabel("Price (Close)")
-    plt.legend()
-    plt.tight_layout()
-    chart_path = os.path.join("static", "chart.png")
-    plt.savefig(chart_path)
-    plt.close()
+        # Calculate additional metrics
+        df["Daily Return"] = df["Close"].pct_change()
+        volatility = df["Daily Return"].std() if not df["Daily Return"].isnull().all() else None
+        percentage_change = ((df["Close"].iloc[-1] - df["Close"].iloc[0]) / df["Close"].iloc[0]) * 100
+        daily_change = df["Close"].diff().abs().mean()
+
+        # Apply seaborn style for cleaner charts
+        sns.set_theme(style="whitegrid")
+
+        # Create price trend chart
+        plt.figure(figsize=(10, 4))
+        plt.plot(df["Date"], df["Close"], label="Close Price", color="blue")
+        plt.plot(df["Date"], df["MA"], label=f"{window}-Day MA", linestyle="--", color="orange")
+        plt.title("Price Trend", fontsize=14)
+        plt.xlabel("Date", fontsize=12)
+        plt.ylabel("Price (Close)", fontsize=12)
+        plt.xticks(rotation=30, fontsize=10)
+        plt.yticks(fontsize=10)
+        plt.legend(fontsize=10)
+        plt.grid(True, linestyle="--", alpha=0.6)
+        plt.tight_layout()
+        chart_path = os.path.join("static", "chart.png")
+        plt.savefig(chart_path)
+        plt.close()
+
+        # Create volume chart if Volume column exists
+        volume_chart_path = None
+        if "Volume" in df.columns:
+            plt.figure(figsize=(10, 4))
+            plt.bar(df["Date"], df["Volume"], color="skyblue", label="Volume")
+            plt.title("Daily Trading Volume", fontsize=14)
+            plt.xlabel("Date", fontsize=12)
+            plt.ylabel("Volume", fontsize=12)
+            plt.xticks(rotation=30, fontsize=10)
+            plt.yticks(fontsize=10)
+            plt.grid(True, linestyle="--", alpha=0.6)
+            plt.tight_layout()
+            volume_chart_path = os.path.join("static", "volume_chart.png")
+            plt.savefig(volume_chart_path)
+            plt.close()
+
+    except Exception as e:
+        return f"Error processing data: {str(e)}", 400
 
     explanation = None
     if request.method == "POST" and request.form.get("explain") == "true":
@@ -100,7 +133,11 @@ def report():
                            min=min_price,
                            window=window,
                            filename=filename,
-                           explanation=explanation)
+                           explanation=explanation,
+                           volatility=volatility,
+                           percentage_change=percentage_change,
+                           daily_change=daily_change,
+                           volume_chart_path=volume_chart_path)
 
 
 if __name__ == "__main__":
